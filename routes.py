@@ -107,14 +107,14 @@ def add_shift():
         # Convert date string to date object
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         
-        # Check if shift already exists
-        existing_shift = Shift.query.filter_by(
+        # Check if caregiver already has a shift on this date
+        existing_caregiver_shift = Shift.query.filter_by(
             date=date,
-            shift_type=shift_type
+            caregiver_id=caregiver_id
         ).first()
         
-        if existing_shift:
-            return jsonify({'error': 'Shift already assigned'}), 400
+        if existing_caregiver_shift:
+            return jsonify({'error': 'Caregiver already has a shift on this date'}), 400
             
         # Check if shift type is valid
         if shift_type not in ShiftConfig.SHIFTS:
