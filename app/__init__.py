@@ -50,4 +50,7 @@ def create_app():
         return app
     except Exception as e:
         logger.error(f"Error creating application: {str(e)}")
-        raise 
+        raise
+
+# Create the application instance
+app = create_app() 
