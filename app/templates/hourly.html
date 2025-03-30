@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .hourly-grid {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .hourly-grid th, .hourly-grid td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+        vertical-align: middle;
+    }
+    .hourly-grid th {
+        background-color: #333;
+        color: white;
+    }
+    .time-slot {
+        font-weight: bold;
+        background-color: #f8f9fa;
+    }
+    .shift-A { background-color: #90EE90; }
+    .shift-B { background-color: #87CEEB; }
+    .shift-C { background-color: #DDA0DD; }
+    .shift-G1 { background-color: #F0E68C; }
+    .shift-G2 { background-color: #FFB6C1; }
+    .shift-A, .shift-B, .shift-C, .shift-G1, .shift-G2 {
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin: 2px 0;
+        display: inline-block;
+    }
+    .legend {
+        margin: 20px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .legend-item {
+        display: inline-block;
+        margin: 5px;
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Hourly Schedule</h1>
+
+<div class="legend">
+    <h3>Shift Times:</h3>
+    <span class="shift-A">A Shift (6AM-2PM)</span>
+    <span class="shift-G2">G2 Shift (9AM-5PM)</span>
+    <span class="shift-G1">G1 Shift (12PM-8PM)</span>
+    <span class="shift-B">B Shift (4PM-12AM)</span>
+    <span class="shift-C">C Shift (12AM-8AM)</span>
+</div>
+
+<table class="hourly-grid">
+    <thead>
+        <tr>
+            <th>Time</th>
+            {% for date in dates %}
+            <th>{{ date.strftime('%A') }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for hour in range(24) %}
+            <tr>
+                <td class="time-slot">
+                    {% if hour == 0 %}
+                        12:00 AM - 1:00 AM
+                    {% elif hour < 12 %}
+                        {{ hour }}:00 AM - {{ hour + 1 }}:00 AM
+                    {% elif hour == 12 %}
+                        12:00 PM - 1:00 PM
+                    {% else %}
+                        {{ hour - 12 }}:00 PM - {{ hour - 11 }}:00 PM
+                    {% endif %}
+                </td>
+                {% for date in dates %}
+                <td>
+                    {% for shift in shifts %}
+                        {% if shift.date == date.date() %}
+                            {% if (shift.shift_type == 'A' and hour >= 6 and hour < 14) or
+                                  (shift.shift_type == 'G2' and hour >= 9 and hour < 17) or
+                                  (shift.shift_type == 'G1' and hour >= 12 and hour < 20) or
+                                  (shift.shift_type == 'B' and hour >= 16 and hour < 24) or
+                                  (shift.shift_type == 'C' and hour >= 0 and hour < 8) %}
+                                <div class="shift-{{ shift.shift_type }}">
+                                    {{ shift.caregiver.name }}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %} 
