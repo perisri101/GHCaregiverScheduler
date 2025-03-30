@@ -119,6 +119,22 @@ def add_shift():
         # Check if shift type is valid
         if shift_type not in ShiftConfig.SHIFTS:
             return jsonify({'error': 'Invalid shift type'}), 400
+        
+        # Get existing shifts of this type on this date
+        existing_shifts = Shift.query.filter_by(
+            date=date,
+            shift_type=shift_type
+        ).all()
+        
+        # Apply different rules based on shift type
+        if shift_type in ['A', 'B', 'C']:
+            # Regular shifts can only have one caregiver
+            if existing_shifts:
+                return jsonify({'error': f'Shift {shift_type} already assigned to another caregiver for this date'}), 400
+        elif shift_type == 'G1':
+            # G1 shifts can have up to 2 caregivers
+            if len(existing_shifts) >= 2:
+                return jsonify({'error': 'G1 shift already has maximum (2) caregivers assigned for this date'}), 400
             
         # Create new shift
         new_shift = Shift(
