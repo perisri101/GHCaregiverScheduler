@@ -6,7 +6,15 @@ class Config:
     
     # Database configuration
     basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', f'sqlite:///{os.path.join(basedir, "instance", "schedule.db")}')
+    
+    # Check if running on Render
+    if os.environ.get('RENDER'):
+        # Use PostgreSQL on Render
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
+    else:
+        # Use SQLite for local development
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', f'sqlite:///{os.path.join(basedir, "instance", "schedule.db")}')
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Environment configuration
