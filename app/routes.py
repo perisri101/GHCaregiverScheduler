@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
 from datetime import datetime, timedelta
 from dateutil.rrule import rrule, DAILY
 from .models import Caregiver, Shift, db
@@ -9,15 +9,23 @@ import traceback
 logger = logging.getLogger(__name__)
 views = Blueprint('views', __name__)
 
-@views.route('/')
-def index():
-    try:
-        logger.debug("Rendering index page")
-        return render_template('index.html')
-    except Exception as e:
-        error_traceback = traceback.format_exc()
-        logger.error(f"Error in index route: {e}\nTraceback:\n{error_traceback}")
-        raise
+@views.route('/', methods=['GET', 'POST'])
+def home():
+    if request.method == 'POST':
+        caregiver_id = request.form.get('caregiver_id')
+        new_name = request.form.get('new_name')
+        
+        if caregiver_id and new_name:
+            caregiver = Caregiver.query.get(caregiver_id)
+            if caregiver:
+                caregiver.name = new_name
+                db.session.commit()
+                flash('Caregiver name updated successfully!', 'success')
+            else:
+                flash('Caregiver not found!', 'error')
+                
+    caregivers = Caregiver.query.all()
+    return render_template('home.html', caregivers=caregivers)
 
 @views.route('/calendar')
 def calendar_view():

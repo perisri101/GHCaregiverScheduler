@@ -18,6 +18,16 @@ def create_app():
         logger.debug("Starting application creation...")
         app = Flask(__name__)
         
+        # Ensure the instance folder exists
+        try:
+            os.makedirs(app.instance_path)
+        except OSError:
+            pass
+        
+        # Configure SQLAlchemy
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'app.db')
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        
         # Load configuration
         from .config import Config
         app.config.from_object(Config)

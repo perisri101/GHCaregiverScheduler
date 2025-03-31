@@ -14,6 +14,9 @@ class Caregiver(db.Model):
     name = db.Column(db.String(100), nullable=False)
     shifts = db.relationship('Shift', backref='caregiver', lazy=True)
 
+    def __repr__(self):
+        return f'<Caregiver {self.name}>'
+
 class Shift(db.Model):
     __tablename__ = 'shift'
     id = db.Column(db.Integer, primary_key=True)
